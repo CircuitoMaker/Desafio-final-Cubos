@@ -1,6 +1,8 @@
 const bcrypt = require('bcrypt');
 const pool = require('../conexao');
-
+const jwt = require('jsonwebtoken')
+const senhaJwt = require('../senhaJWT');
+const senhaJWT = require('../senhaJWT');
 const cadastrarUsuario = async (req, res) => {
   const { nome, email, senha } = req.body;
   if (!nome || !email || !senha) {
@@ -28,7 +30,38 @@ const cadastrarUsuario = async (req, res) => {
   }
 }
 
+const login = async(req,res)=>{
+    const {email,senha}=req.body
+    if(!email){
+        return res.status(400).json({erro:'O e-mail não foi informado'})
+    }
+    if(!senha){
+        return res.status(400).json({erro:'A senha não foi informada'})
+    }
+    try {
+        const {rows,rowCount}= await pool.query('select * from usuarios where email = $1', [email])
+        if(rowCount == 0){
+            return res.status(400).json({erro: 'E-mail ou senha inválidos'})
+        }
+        const {senha: senhaUsuario, ...usuario} = rows[0]
+
+        const senhaCorreta = bcrypt.compare(senha,senhaUsuario)
+        if(!senhaCorreta){
+            return res.status(400).json({erro:'E-mail ou senha inválidos'})
+        }
+        const token = await jwt.sign({id: usuario.id}, senhaJWT,{expiresIn:'8h'})
+        return res.json(
+            usuario,
+            token
+        )
+    } catch (error) {
+        return res.status(500).json({erro:'Erro interno do servidor'})
+    }
+
+}
+
 
 module.exports = {
   cadastrarUsuario,
+  login
 };
