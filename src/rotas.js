@@ -5,10 +5,9 @@ const { cadastrarUsuario, login } = require('./controladores/usuarios');
 const rotas = express();
 
 
-
 rotas.get('/categoria', listarCategorias);
 rotas.post('/usuario', cadastrarUsuario);
-rotas.post('login', login)
+rotas.post('/login', login)
 
 rotas.use(verificarLogin);
 

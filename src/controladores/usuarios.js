@@ -3,8 +3,12 @@ const pool = require('../conexao');
 const jwt = require('jsonwebtoken')
 const senhaJwt = require('../senhaJWT');
 const senhaJWT = require('../senhaJWT');
+
 const cadastrarUsuario = async (req, res) => {
   const { nome, email, senha } = req.body;
+
+  console.log(nome)
+
   if (!nome || !email || !senha) {
     return res.status(400).json({ erro: 'Todos os campos são obrigatórios' });
   }
@@ -40,6 +44,7 @@ const login = async(req,res)=>{
     }
     try {
         const {rows,rowCount}= await pool.query('select * from usuarios where email = $1', [email])
+        
         if(rowCount == 0){
             return res.status(400).json({erro: 'E-mail ou senha inválidos'})
         }
