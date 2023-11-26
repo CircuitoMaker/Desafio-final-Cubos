@@ -2,15 +2,14 @@ const jwt = require('jsonwebtoken');
 const senhaJwt = require('../senhaJWT');
 const pool = require('../conexao.js');
 
-const verificarLogin = async (req, res, next) => {
-    const { autorizacao } = req.headers;
+const verificarLogin = async (req, res, next) => { 
+    const { authorization} = req.headers;
 
-
-    if (!autorizacao) {
-        res.status(401).json({ mensagem: 'Não autorizado.' });
+    if (!authorization) {
+      return  res.status(401).json({ mensagem: 'Não autorizado.' });
     }
 
-    const token = autorizacao.split(' ')[1];
+    const token = authorization.split(' ')[1];
 
     try {
         const { id } = jwt.verify(token, senhaJwt);
@@ -18,7 +17,7 @@ const verificarLogin = async (req, res, next) => {
         const usuario = await pool.query('select * from usuarios where id = $1', [id]);
 
         if (!usuario) {
-            res.status(401).json({ mensagem: 'Não autorizado.' });
+           return res.status(401).json({ mensagem: 'Não autorizado.' });
         }
 
         req.usuario = usuario;
