@@ -74,7 +74,6 @@ const usuario = await pool.query(
 
 const editarPerfilUsuario = async (req, res) => {
   const { nome, email, senha } = req.body;
-console.log(nome)
   if (!nome || !email || !senha) {
     return lidarComErros(mensagensErroUsuarios.camposObrigatorios, res);
   }
@@ -106,16 +105,15 @@ console.log(nome)
 
     if (usuarioAtualizado.rowCount > 0) {
       const usuarioEditado = usuarioAtualizado.rows[0];
+      return res.json(usuarioEditado );
 
-      return res.json({ usuario: usuarioEditado });
     } else {
-      return lidarComErros(mensagensErroUsuarios.erroAoEditarUsuario, res);
+      return res.status(500).json({erro:'Erro interno do servidor'})
     }
   } catch (error) {
-    return lidarComErros(mensagensErroServidor.erroInterno, res);
+    return res.status(500).json({erro:'Erro interno do servidor'})
   }
 }; 
-
 
 const detalharPerfilUsuario = async (req, res) => {
   const user = req.usuario.rows[0];
