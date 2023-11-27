@@ -75,7 +75,7 @@ const usuario = await pool.query(
 const editarPerfilUsuario = async (req, res) => {
   const { nome, email, senha } = req.body;
   if (!nome || !email || !senha) {
-    return lidarComErros(mensagensErroUsuarios.camposObrigatorios, res);
+    return res.status(400).json({erro:'Todos os campos são necessários'})
   }
 
   try {
@@ -86,7 +86,7 @@ const editarPerfilUsuario = async (req, res) => {
     );
 
     if (usuarioExistente.rowCount < 1) {
-      return lidarComErros(mensagensErroUsuarios.usuarioNaoEncontrado, res);
+      return res.status(400).json({erro:'Usuario não encontrado!'})
     }
 
     const emailExistente = await pool.query(
@@ -95,7 +95,7 @@ const editarPerfilUsuario = async (req, res) => {
     );
 
     if (emailExistente.rowCount > 0) {
-      return lidarComErros(mensagensErroUsuarios.emailJaCadastrado, res);
+      return res.status(400).json({erro:'Email não encontrado!'})
     }
 
     const usuarioAtualizado = await pool.query(
