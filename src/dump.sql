@@ -23,3 +23,24 @@ values
 ('Moda'),
 ('Bebê'),
 ('Games')
+
+create table produtos(
+  id serial primary key,
+  descricao text not null,
+  quantidade_estoque integer not null,
+  valor integer not null,
+  categoria_id integer references categorias(id)
+);
+
+create table clientes(
+id serial primary key,
+  nome text not null,
+  email text not null unique,
+  cpf text not null unique,
+  cep text not null,
+  rua text not null,
+  numero integer not null,
+  bairro text not null,
+  cidade text not null,
+  estado text not null
+)
