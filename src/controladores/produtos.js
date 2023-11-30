@@ -70,17 +70,16 @@ WHERE id = $5;
 }
 
 const listarProdutos = async(req,res)=>{
-    const {id} = req.params;
+    const {categoria_id} = req.query;
  
 try {
-    if(id){
-        const produtoExiste = await pool.query('select * from produtos where id = $1',[id])
-        if(produtoExiste.rowCount < 1){
-            return res.status(400).json({erro:'Produto não encontrado!'})
-        }
-        const produtoEncontrado = produtoExiste.rows[0]
+    if(categoria_id){
+         const produtoExiste = await pool.query('select * from produtos where categoria_id = $1',[categoria_id])
+         if(produtoExiste.rowCount < 1){
+             return res.status(400).json({erro:'Sem produtos cadastrados nesta categoria!'})
+         }
+        const produtoEncontrado = produtoExiste.rows
         return res.status(201).json(produtoEncontrado)
-
     }
 
     const listaProdutos = await pool.query('select * from produtos');
