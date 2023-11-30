@@ -12,12 +12,12 @@ const cadastrarCliente = async (req, res) => {
     try {
         const emailUnico = await pool.query('select * from clientes where email = $1', [email]);
         if (emailUnico.rowCount > 0) {
-            return res.status(400).json({ erro: 'E-mail informado já está cadastrado.' });
+            return res.status(400).json({ erro: 'E-mail e CPF não podem ter sido cadastrados anteriormente.' });
         };
 
         const cpfUnico = await pool.query('select * from clientes where cpf = $1', [cpf]);
         if (cpfUnico.rowCount > 0) {
-            return res.status(400).json({ erro: 'CPF informado já está cadastrado.' });
+            return res.status(400).json({ erro: 'E-mail e CPF não podem ter sido cadastrados anteriormente.' });
         }
 
 
@@ -56,12 +56,12 @@ const editarCliente = async (req, res) => {
 
         const emailUnico = await pool.query('select * from clientes where email = $1 and id != $2', [email, id]);
         if (emailUnico.rowCount > 0) {
-            return res.status(400).json({ erro: 'E-mail informado já está cadastrado.' });
+            return res.status(400).json({ erro: 'E-mail e CPF não podem ter sido cadastrados anteriormente.' });
         };
 
         const cpfUnico = await pool.query('select * from clientes where cpf = $1 and id != $2', [cpf, id]);
         if (cpfUnico.rowCount > 0) {
-            return res.status(400).json({ erro: 'CPF informado já está cadastrado.' });
+            return res.status(400).json({ erro: 'E-mail e CPF não podem ter sido cadastrados anteriormente.' });
         }
 
 
