@@ -35,16 +35,57 @@ const query = `
 }
 
 
+const editarDadosProduto = async(req,res)=>{
 
+const {id} = req.params;
+const {descricao,quantidade_estoque,valor,categoria_id} = req.body;
 
-module.exports = {
-    cadastrarProduto
+if(!descricao || !quantidade_estoque || !valor || !categoria_id){
+return res.status(400).json({erro:'Para editar um produto, todos os campos devem ser informados.'})
+}
+ try {
+     const produtoExiste = await pool.query('select * from produtos where id = $1',[id])
+    if(produtoExiste.rowCount < 1){
+        return res.status(400).json({erro:'Produto não encontrado!'})
+    }
+
+    const categoriaExiste = await pool.query('select * from categorias where id = $1',[categoria_id])
+    if(categoriaExiste.rowCount < 1){
+        return res.status(400).json({erro:'Esta categoria não existe'})
+    }
+
+const query = `
+UPDATE produtos
+SET descricao = $1, quantidade_estoque = $2, valor = $3, categoria_id = $4
+WHERE id = $5; 
+`;
+    const {rows,rowCount} = await pool.query(query,[descricao, quantidade_estoque, valor, categoria_id, id])
+
+ if (rowCount > 0) {
+    return res.status(201).json("Produto Atualizado")
+    }
+
+} catch (error) {
+    console.log(error)
+    return res.status(500).json({erro:'Erro interno do servidor'})
+}
 }
 
 
-// Validar os campos obrigatórios:
-//     -   descricao
-//     -   quantidade_estoque
-//     -   valor
-//     -   categoria_id
-// -   A categoria informada na qual o produto será vinculado deverá existir.
+
+
+module.exports = {
+    cadastrarProduto,
+    editarDadosProduto
+}
+
+
+/*
+-   Validar se existe produto para o id enviado como parâmetro na rota.
+-   Validar os campos obrigatórios:
+    -   descricao
+    -   quantidade_estoque
+    -   valor
+    -   categoria_id
+-   A categoria informada na qual o produto será vinculado deverá existir.
+*/
