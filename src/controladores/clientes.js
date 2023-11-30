@@ -92,10 +92,10 @@ const listarCliente = async (req, res) => {
     }
 };
 
+
 const detalharCliente = async (req, res) => {
 
     const { id } = req.params;
-
 
     try {
         const clienteLocalizado = await pool.query('select * from clientes where id =$1', [id]);
@@ -114,5 +114,4 @@ module.exports = {
     editarCliente,
     listarCliente,
     detalharCliente
-
 };
