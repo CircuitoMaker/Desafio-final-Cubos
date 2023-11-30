@@ -10,7 +10,7 @@ const rotas = express();
 rotas.get('/categoria', listarCategorias);
 rotas.post('/usuario', usuario.cadastrarUsuario);
 rotas.post('/login', usuario.login);
-//remover comentarios
+
 rotas.use(verificarLogin);
 
 rotas.get('/usuario', usuario.detalharPerfilUsuario);
