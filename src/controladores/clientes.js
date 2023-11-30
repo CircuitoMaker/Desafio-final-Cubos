@@ -96,6 +96,15 @@ const listarCliente = async (req, res) => {
     }
 };
 
+const detalharCliente = async (req, res) => {
+
+    try {
+
+    } catch (error) {
+
+    }
+}
+
 module.exports = {
     cadastrarCliente,
     editarCliente,
