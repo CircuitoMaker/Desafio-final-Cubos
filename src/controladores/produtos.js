@@ -131,9 +131,7 @@ const { rowCount } = await pool.query(query, [id]);
 } catch (error) {
     return res.status(500).json({erro:'Erro interno do servidor'})  
 }
-
 }
-
 
 
 module.exports = {
