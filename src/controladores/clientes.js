@@ -74,7 +74,7 @@ const editarCliente = async (req, res) => {
         `
         const resultado = await pool.query(query, [nome, email, cpf, id]);
 
-        res.status(200).json(resultado.rows[0]);
+        res.status(201).json(resultado.rows[0]);
 
     } catch (error) {
         return res.status(500).json({ erro: 'Erro interno do servidor' });
@@ -82,6 +82,19 @@ const editarCliente = async (req, res) => {
 
 };
 
+const listarCliente = async (req, res) => {
+
+
+
+    try {
+        const query = `select * from clientes`;
+        const resposta = await pool.query(query);
+
+        return res.status(200).json(resposta.rows);
+    } catch (error) {
+        return res.status(500).json({ erro: 'Erro interno do servidor' });
+    }
+};
 
 module.exports = {
     cadastrarCliente,
