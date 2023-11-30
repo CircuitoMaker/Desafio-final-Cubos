@@ -1,11 +1,9 @@
 const pool = require('../conexao');
 
-
-
 const cadastrarCliente = async (req, res) => {
-    const { nome, email, cpf } = req.body;
+    const { nome, email, cpf , cep , rua , numero, bairro, cidade, estado} = req.body;
 
-    if (!nome || !email || !cpf) {
+    if (!nome || !email || !cpf  || !cep || !rua || !numero || !bairro || !cidade || !estado) {
         return res.status(400).json({ erro: 'É necessário preencher todos os campos para realizar o cadastro do cliente.' })
     };
 
@@ -15,20 +13,19 @@ const cadastrarCliente = async (req, res) => {
             return res.status(400).json({ erro: 'E-mail e CPF não podem ter sido cadastrados anteriormente.' });
         };
 
+
         const cpfUnico = await pool.query('select * from clientes where cpf = $1', [cpf]);
         if (cpfUnico.rowCount > 0) {
             return res.status(400).json({ erro: 'E-mail e CPF não podem ter sido cadastrados anteriormente.' });
         }
 
-
-
         const query = `
-        insert into clientes (nome,email,cpf)
-        values($1,$2,$3) returning *
+        insert into clientes (nome,email,cpf,cep,rua,numero,bairro,cidade,estado)
+        values($1,$2,$3,$4,$5,$6,$7,$8,$9) returning *
     `
-        const resultado = await pool.query(query, [nome, email, cpf]);
-
-        res.status(201).json(resultado.rows[0]);
+        const resultado = await pool.query(query, [nome, email, cpf, cep, rua, numero, bairro, cidade, estado]);
+       
+        return res.status(201).json(resultado.rows[0]);
 
     } catch (error) {
         return res.status(500).json({ erro: 'Erro interno do servidor' });
