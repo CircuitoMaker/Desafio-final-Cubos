@@ -98,10 +98,18 @@ const listarCliente = async (req, res) => {
 
 const detalharCliente = async (req, res) => {
 
+    const { id } = req.params;
+
+
     try {
+        const clienteLocalizado = await pool.query('select * from clientes where id =$1', [id]);
+        if (clienteLocalizado.rowCount === 0) {
+            return res.status(404).json({ erro: 'Cliente não localizado.' })
+        };
 
+        return res.status(200).json(clienteLocalizado.rows[0]);
     } catch (error) {
-
+        return res.status(500).json({ erro: 'Erro interno do servidor' });
     }
 }
 
