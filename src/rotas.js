@@ -19,7 +19,7 @@ rotas.post('/produto', produto.cadastrarProduto);
 rotas.put('/produto/:id', produto.editarDadosProduto);
 rotas.get('/produto',produto.listarProdutos);
 rotas.get('/produto/:id',produto.detalharProduto);
-
+rotas.delete('/produto/:id',produto.excluirProduto);
 
 
 module.exports = rotas
