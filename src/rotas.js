@@ -26,5 +26,5 @@ rotas.post('/cliente', cliente.cadastrarCliente);
 rotas.put('/cliente/:id', cliente.editarCliente);
 rotas.get('/cliente', cliente.listarCliente);
 rotas.get('/cliente/:id', cliente.detalharCliente);
-;
+
 module.exports = rotas
