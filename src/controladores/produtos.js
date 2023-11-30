@@ -3,7 +3,7 @@ const pool = require('../conexao')
 const cadastrarProduto = async(req,res)=>{
 const {descricao,quantidade_estoque,valor,categoria_id}=req.body
 
-if(!descricao||!quantidade_estoque||!valor||!categoria_id){
+if(!descricao || !quantidade_estoque || !valor || !categoria_id){
 return res.status(400).json({erro:'Para cadastrar um produto, todos os campos devem ser informados.'})
 }
  try {
@@ -12,6 +12,10 @@ return res.status(400).json({erro:'Para cadastrar um produto, todos os campos de
         return res.status(400).json({erro:'Esse produto já foi cadastrado'})
     }
 
+    const categoriaExiste = await pool.query('select * from categorias where id = $1',[categoria_id])
+    if(categoriaExiste.rowCount < 1){
+        return res.status(400).json({erro:'Esta categoria não existe'})
+    }
 
 const query = `
     insert into produtos(descricao,quantidade_estoque,valor,categoria_id)
@@ -29,7 +33,10 @@ const query = `
 }
 }
 
-module.exports ={
+
+
+
+module.exports = {
     cadastrarProduto
 }
 

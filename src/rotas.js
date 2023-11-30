@@ -14,5 +14,11 @@ rotas.use(verificarLogin);
 
 rotas.get('/usuario', usuario.detalharPerfilUsuario);
 rotas.put('/usuario', usuario.editarPerfilUsuario);
- rotas.post('/produto', cadastrarProduto)
+
+rotas.post('/produto', cadastrarProduto);
+//
+
+
+
+
 module.exports = rotas
