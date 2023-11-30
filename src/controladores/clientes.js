@@ -37,8 +37,7 @@ const cadastrarCliente = async (req, res) => {
 const editarCliente = async (req, res) => {
 
     const { id } = req.params;
-    const { nome, email, cpf } = req.body;
-
+    const { nome, email, cpf, cep, rua, numero, bairro, cidade, estado } = req.body;
 
     try {
 
@@ -47,7 +46,7 @@ const editarCliente = async (req, res) => {
             return res.status(404).json({ erro: 'Cliente não localizado.' })
         }
 
-        if (!nome || !email || !cpf) {
+        if (!nome || !email || !cpf || !cep || !rua || !numero || !bairro || !cidade || !estado) {
             return res.status(400).json({ erro: 'É necessário preencher todos os campos para realizar o cadastro do cliente.' })
         };
 
@@ -65,11 +64,11 @@ const editarCliente = async (req, res) => {
 
         const query = ` 
         UPDATE clientes 
-        SET nome = $1, email = $2, cpf = $3
-        WHERE id = $4
+        SET nome = $1, email = $2, cpf = $3, cep = $4, rua = $5, numero = $6, bairro = $7, cidade = $8, estado = $9    
+        WHERE id = $10
         returning *
         `
-        const resultado = await pool.query(query, [nome, email, cpf, id]);
+        const resultado = await pool.query(query, [nome, email, cpf, cep, rua, numero, bairro, cidade, estado, id]);
 
         res.status(200).json(resultado.rows[0]);
 
@@ -79,9 +78,9 @@ const editarCliente = async (req, res) => {
 
 };
 
+
+
 const listarCliente = async (req, res) => {
-
-
 
     try {
         const query = `select * from clientes`;
