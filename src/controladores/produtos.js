@@ -23,9 +23,10 @@ const query = `
     `
     const {rows}= await pool.query(query,[descricao,quantidade_estoque,valor,categoria_id])
 
-    const{descricao: _, ...produto} = rows[0]
-
+    if (rows.length > 0) {
+    const produto  = rows[0];
     return res.status(201).json(produto)
+    }
 
 } catch (error) {
     console.log(error)
