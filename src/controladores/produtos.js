@@ -93,10 +93,33 @@ try {
 }
 
 
+const detalharProduto = async(req,res)=>{
+    const {id} = req.params;
+ 
+    try {
+        if(id){
+            const produtoExiste = await pool.query('select * from produtos where id = $1',[id])
+            if(produtoExiste.rowCount < 1){
+                return res.status(400).json({erro:'Produto não encontrado!'})
+            }
+            const produtoEncontrado = produtoExiste.rows[0]
+            return res.status(201).json(produtoEncontrado)
+    
+        }
+    
+    } catch (error) {
+        return res.status(500).json({erro:'Erro interno do servidor'})
+    }    
+}
+
+
+
+
 module.exports = {
     cadastrarProduto,
     editarDadosProduto,
-    listarProdutos
+    listarProdutos,
+    detalharProduto
 }
 
 
