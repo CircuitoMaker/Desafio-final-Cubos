@@ -1,18 +1,36 @@
-const bcrypt = require('bcrypt');
-const pool = require('../conexao');
-const jwt = require('jsonwebtoken')
-const senhaJWT = require('../senhaJWT');
+const bcrypt = require("bcrypt");
+const pool = require("../conexao");
+const jwt = require("jsonwebtoken");
+const senhaJWT = require("../senhaJWT");
+const joi = require("joi");
 
 const cadastrarUsuario = async (req, res) => {
   const { nome, email, senha } = req.body;
 
-  if (!nome || !email || !senha) {
-    return res.status(400).json({ erro: 'Todos os campos são obrigatórios' });
-  }
+  const schemaUsuario = joi.object({
+    nome: joi.string().min(3).required().messages({
+      "any.required": "O campo nome é obrigatório",
+      "string.min": "Campo nome deve ter no mínimo 3 letras",
+    }),
+    email: joi.string().email().required().messages({
+      "any.required": "O campo e-mail é obrigatório",
+      "string.email": "Verifique se o e-mail digitado está correto.",
+    }),
+    senha: joi.string().min(5).required().messages({
+      "string.min": "A senha deve ter no mínimo 5 caracteres.",
+      "any.required": "O campo senha é obrigatório",
+    }),
+  });
+
   try {
-    const emailExiste = await pool.query('select * from usuarios where email = $1', [email]);
+    await schemaUsuario.validateAsync({ nome, email, senha });
+
+    const emailExiste = await pool.query(
+      "select * from usuarios where email = $1",
+      [email]
+    );
     if (emailExiste.rowCount > 0) {
-      return res.status(400).json({ erro: 'Email informado já existe'});
+      return res.status(400).json({ erro: "Email informado já existe" });
     }
 
     const senhaCriptografada = await bcrypt.hash(senha, 10);
@@ -20,43 +38,41 @@ const cadastrarUsuario = async (req, res) => {
     const query = `
     insert into usuarios(nome,email,senha)
     values($1,$2,$3) returning *
-`
+`;
 
     const { rows } = await pool.query(query, [nome, email, senhaCriptografada]);
 
     const { senha: _, ...usuario } = rows[0];
     return res.status(201).json(usuario);
-
   } catch (error) {
-    return res.status(500).json({ erro: 'Erro interno do servidor' });
+    console.log(error);
+    return res.status(500).json({ erro: error.message });
   }
-}
+};
 
+const login = async (req, res) => {
+  const { email, senha } = req.body;
 
-const login = async(req,res)=>{
-    const {email,senha}=req.body
-
-    if(!email){
-        return res.status(400).json({erro:'O e-mail não foi informado'})
-    }
-    if(!senha){
-        return res.status(400).json({erro:'A senha não foi informada'})
-    }
-    try {
-        
-const usuario = await pool.query(
+  if (!email) {
+    return res.status(400).json({ erro: "O e-mail não foi informado" });
+  }
+  if (!senha) {
+    return res.status(400).json({ erro: "A senha não foi informada" });
+  }
+  try {
+    const usuario = await pool.query(
       "select * from usuarios where email = $1",
       [email]
     );
 
     if (usuario.rowCount < 1) {
-      return res.status(400).json({erro: 'E-mail ou senha inválidos'})
+      return res.status(400).json({ erro: "E-mail ou senha inválidos" });
     }
 
     const senhaValida = await bcrypt.compare(senha, usuario.rows[0].senha);
 
     if (!senhaValida) {
-      return res.status(400).json({erro: 'E-mail ou senha inválidos'})
+      return res.status(400).json({ erro: "E-mail ou senha inválidos" });
     }
 
     delete usuario.rows[0].senha;
@@ -65,17 +81,15 @@ const usuario = await pool.query(
     const resposta = { usuario: userSemSenha, token: token };
 
     return res.json(resposta);
-
-    } catch (error) {
-        return res.status(500).json({erro:'Erro interno do servidor'})
-    }
-
-}
+  } catch (error) {
+    return res.status(500).json({ erro: "Erro interno do servidor" });
+  }
+};
 
 const editarPerfilUsuario = async (req, res) => {
   const { nome, email, senha } = req.body;
   if (!nome || !email || !senha) {
-    return res.status(400).json({erro:'Todos os campos são necessários'})
+    return res.status(400).json({ erro: "Todos os campos são necessários" });
   }
 
   try {
@@ -86,7 +100,7 @@ const editarPerfilUsuario = async (req, res) => {
     );
 
     if (usuarioExistente.rowCount < 1) {
-      return res.status(400).json({erro:'Usuario não encontrado!'})
+      return res.status(400).json({ erro: "Usuario não encontrado!" });
     }
 
     const emailExistente = await pool.query(
@@ -95,7 +109,7 @@ const editarPerfilUsuario = async (req, res) => {
     );
 
     if (emailExistente.rowCount > 0) {
-      return res.status(400).json({erro:'Email não encontrado!'})
+      return res.status(400).json({ erro: "Email não encontrado!" });
     }
 
     const usuarioAtualizado = await pool.query(
@@ -105,15 +119,14 @@ const editarPerfilUsuario = async (req, res) => {
 
     if (usuarioAtualizado.rowCount > 0) {
       const usuarioEditado = usuarioAtualizado.rows[0];
-      return res.json(usuarioEditado );
-
+      return res.json(usuarioEditado);
     } else {
-      return res.status(500).json({erro:'Erro interno do servidor'})
+      return res.status(500).json({ erro: "Erro interno do servidor" });
     }
   } catch (error) {
-    return res.status(500).json({erro:'Erro interno do servidor'})
+    return res.status(400).json({ erro: error.message });
   }
-}; 
+};
 
 const detalharPerfilUsuario = async (req, res) => {
   const user = req.usuario.rows[0];
@@ -125,5 +138,5 @@ module.exports = {
   cadastrarUsuario,
   login,
   detalharPerfilUsuario,
-  editarPerfilUsuario
+  editarPerfilUsuario,
 };
