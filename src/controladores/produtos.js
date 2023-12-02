@@ -15,7 +15,7 @@ const cadastrarProduto = async (req, res) => {
     valor: joi.number().min(2).required().messages({
       "any.required": "O campo valor é obrigatório",
       "number.base": "Esse campo deve ser preenchido com números",
-      "string.min": "A senha deve ter no mínimo 2 caracteres.",
+      "number.min": "Valor digitado deve ser em centavos(ex:R$ 10,00 = 1000)",
     }),
     categoria_id: joi.number().required().messages({
       "any.required": "O campo valor é obrigatório",
