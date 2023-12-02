@@ -4,6 +4,8 @@ const listarCategorias = require('./controladores/categorias');
 const usuario = require('./controladores/usuarios');
 const produto = require('./controladores/produtos');
 const cliente = require('./controladores/clientes');
+const validarCorpoRequisicao = require('./intermediarios/validarCorpoRequisicao');
+const schemaClientes = require('./validacoes/schemaClientes');
 
 const rotas = express();
 
@@ -22,8 +24,8 @@ rotas.get('/produto', produto.listarProdutos);
 rotas.get('/produto/:id', produto.detalharProduto);
 rotas.delete('/produto/:id', produto.excluirProduto);
 
-rotas.post('/cliente', cliente.cadastrarCliente);
-rotas.put('/cliente/:id', cliente.editarCliente);
+rotas.post('/cliente',validarCorpoRequisicao(schemaClientes),cliente.cadastrarCliente);
+rotas.put('/cliente/:id', validarCorpoRequisicao(schemaClientes),cliente.editarCliente);
 rotas.get('/cliente', cliente.listarCliente);
 rotas.get('/cliente/:id', cliente.detalharCliente);
 
