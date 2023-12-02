@@ -35,6 +35,8 @@ const schemaClientes = joi.object({
       }),
     estado: joi.string().min(2).max(2).trim().required().messages({
         "any.required": "O campo cidade é obrigatório",
+        "string.min": "Estado inválido",
+        "string.max": "Estado inválido",
       }),
     })
 
