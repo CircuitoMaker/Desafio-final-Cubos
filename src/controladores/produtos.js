@@ -1,36 +1,10 @@
 const pool = require("../conexao");
-const joi = require("joi");
 
 const cadastrarProduto = async (req, res) => {
   const { descricao, quantidade_estoque, valor, categoria_id } = req.body;
 
-  const schemaProdutos = joi.object({
-    descricao: joi.string().required().messages({
-      "any.required": "O campo descrição é obrigatório",
-    }),
-    quantidade_estoque: joi.number().required().messages({
-      "any.required": "O campo de quantidade estoque é obrigatório",
-      "number.base": "Esse campo deve ser preenchido com números",
-    }),
-    valor: joi.number().min(2).required().messages({
-      "any.required": "O campo valor é obrigatório",
-      "number.base": "Esse campo deve ser preenchido com números",
-      "number.min": "Valor digitado deve ser em centavos(ex:R$ 10,00 = 1000)",
-    }),
-    categoria_id: joi.number().required().messages({
-      "any.required": "O campo valor é obrigatório",
-      "number.base": "Esse campo deve ser preenchido com números",
-    }),
-  });
-
   try {
-    await schemaProdutos.validateAsync({
-      descricao,
-      quantidade_estoque,
-      valor,
-      categoria_id,
-    });
-
+  
     const produtoExiste = await pool.query(
       "select * from produtos where descricao = $1",
       [descricao]
@@ -72,13 +46,6 @@ const editarDadosProduto = async (req, res) => {
   const { id } = req.params;
   const { descricao, quantidade_estoque, valor, categoria_id } = req.body;
 
-  if (!descricao || !quantidade_estoque || !valor || !categoria_id) {
-    return res
-      .status(400)
-      .json({
-        erro: "Para editar um produto, todos os campos devem ser informados.",
-      });
-  }
   try {
     const produtoExiste = await pool.query(
       "select * from produtos where id = $1",

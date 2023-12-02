@@ -2,28 +2,11 @@ const bcrypt = require("bcrypt");
 const pool = require("../conexao");
 const jwt = require("jsonwebtoken");
 const senhaJWT = require("../senhaJWT");
-const joi = require("joi");
 
 const cadastrarUsuario = async (req, res) => {
   const { nome, email, senha } = req.body;
 
-  const schemaUsuario = joi.object({
-    nome: joi.string().min(3).required().messages({
-      "any.required": "O campo nome é obrigatório",
-      "string.min": "Campo nome deve ter no mínimo 3 letras",
-    }),
-    email: joi.string().email().required().messages({
-      "any.required": "O campo e-mail é obrigatório",
-      "string.email": "Verifique se o e-mail digitado está correto.",
-    }),
-    senha: joi.string().min(5).required().messages({
-      "string.min": "A senha deve ter no mínimo 5 caracteres.",
-      "any.required": "O campo senha é obrigatório",
-    }),
-  });
-
   try {
-    await schemaUsuario.validateAsync({ nome, email, senha });
 
     const emailExiste = await pool.query(
       "select * from usuarios where email = $1",
@@ -88,9 +71,6 @@ const login = async (req, res) => {
 
 const editarPerfilUsuario = async (req, res) => {
   const { nome, email, senha } = req.body;
-  if (!nome || !email || !senha) {
-    return res.status(400).json({ erro: "Todos os campos são necessários" });
-  }
 
   try {
     const userId = req.usuario.rows[0].id;
