@@ -8,13 +8,14 @@ const cliente = require('./controladores/clientes');
 const validarCorpoRequisicao = require('./intermediarios/validarCorpoRequisicao');
 const schemaClientes = require('./validacoes/schemaClientes');
 const schemaUsuarios = require('./validacoes/schemaUsuarios');
-const schemaProdutos = require('./validacoes/schemaProdutos')
+const schemaProdutos = require('./validacoes/schemaProdutos');
+const schemaLogin = require('./validacoes/schemaLogin');
 
 const rotas = express();
 
 rotas.get('/categoria', listarCategorias);
 rotas.post('/usuario',validarCorpoRequisicao(schemaUsuarios),usuario.cadastrarUsuario);
-rotas.post('/login', usuario.login);
+rotas.post('/login',validarCorpoRequisicao(schemaLogin), usuario.login);
 
 rotas.use(verificarLogin);
 

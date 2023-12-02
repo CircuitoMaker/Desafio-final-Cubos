@@ -35,13 +35,7 @@ const cadastrarUsuario = async (req, res) => {
 
 const login = async (req, res) => {
   const { email, senha } = req.body;
-
-  if (!email) {
-    return res.status(400).json({ erro: "O e-mail não foi informado" });
-  }
-  if (!senha) {
-    return res.status(400).json({ erro: "A senha não foi informada" });
-  }
+  
   try {
     const usuario = await pool.query(
       "select * from usuarios where email = $1",
