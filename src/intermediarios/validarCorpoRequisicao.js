@@ -1,5 +1,6 @@
 const validarCorpoRequisicao = (joiSchema) => async (req, res, next) => {
     try {
+      
       await joiSchema.validateAsync(req.body);
       next();
     } catch (error) {

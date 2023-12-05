@@ -21,7 +21,7 @@ const cadastrarCliente = async (req, res) => {
         insert into clientes (nome,email,cpf,cep,rua,numero,bairro,cidade,estado)
         values($1,$2,$3,$4,$5,$6,$7,$8,$9) returning *
     `
-        const resultado = await pool.query(query, [nome, email, cpf, cep, rua, numero, bairro, cidade, estado]);
+        const resultado = await pool.query(query, [nome, email.toLowerCase(), cpf, cep, rua, numero, bairro, cidade, estado]);
        
         return res.status(201).json(resultado.rows[0]);
 

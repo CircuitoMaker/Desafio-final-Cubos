@@ -15,29 +15,16 @@ const schemaClientes = joi.object({
     "any.required": "O campo cpf é obrigatório",
     "string.pattern.base":"O CPF deve conter apenas numeros",
     }),
-    cep: joi.string().min(8).max(8).regex(/^[0-9]{8}$/).trim().required().messages({
-        "any.required": "O campo cep é obrigatório",
+    cep: joi.string().min(8).max(8).regex(/^[0-9]{8}$/).trim().messages({
         "string.min": "Cep inválido",
         "string.max": "Cep inválido",
         "string.pattern.base":"O CEP deve conter apenas numeros",
     }),
-    rua: joi.string().required().messages({
-        "any.required": "O campo rua é obrigatório",
-    }),
-    numero:joi.string().max(10).trim().required().messages({
-        "any.required": "O campo numero é obrigatório",
-    }),
-    bairro: joi.string().required().messages({
-        "any.required": "O campo bairro é obrigatório ",
-      }),
-    cidade: joi.string().min(3).required().messages({
-        "any.required": "O campo cidade é obrigatório",
-      }),
-    estado: joi.string().min(2).max(2).trim().required().messages({
-        "any.required": "O campo cidade é obrigatório",
-        "string.min": "Estado inválido",
-        "string.max": "Estado inválido",
-      }),
+    rua: joi.string(),
+    numero:joi.string().max(10).trim(),
+    bairro: joi.string(),
+    cidade: joi.string().min(3),
+    estado: joi.string().min(2).max(2).trim()
     })
 
     module.exports = schemaClientes
