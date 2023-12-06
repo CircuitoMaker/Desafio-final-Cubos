@@ -102,6 +102,16 @@ const listarProdutos = async (req, res) => {
 
   try {
     if (categoria_id) {
+
+      const categoriaExistente = await pool.query(
+        "SELECT * FROM categorias WHERE id = $1",
+        [categoria_id]
+    );
+
+    if (categoriaExistente.rows.length === 0) {
+        return res.status(400).json({ erro: "A categoria não existe" });
+    }
+
       const produtoExiste = await pool.query(
         "select * from produtos where categoria_id = $1",
         [categoria_id]
