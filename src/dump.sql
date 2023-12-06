@@ -53,3 +53,21 @@ ALTER COLUMN numero DROP NOT NULL,
 ALTER COLUMN bairro DROP NOT NULL,
 ALTER COLUMN cidade DROP NOT NULL,
 ALTER COLUMN estado DROP NOT NULL;
+
+create table pedidos
+(id serial primary key,
+ cliente_id integer not null references clientes(id),
+ observacao text,
+ valor_total integer
+);
+
+create table pedidos_produtos
+(id serial primary key,
+ pedido_id integer references pedidos(id),
+ produto_id integer not null references produtos(id),
+ quantidade_produto integer not null,
+ valor_produto integer
+);
+
+alter table produtos
+add produto_imagem text
