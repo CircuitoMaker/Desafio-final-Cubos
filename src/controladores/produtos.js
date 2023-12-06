@@ -2,16 +2,9 @@ const pool = require("../conexao");
 
 const cadastrarProduto = async (req, res) => {
   const { descricao, quantidade_estoque, valor, categoria_id } = req.body;
+  const quantidade = parseInt(quantidade_estoque);
 
   try {
-  
-    const produtoExiste = await pool.query(
-      "select * from produtos where descricao = $1",
-      [descricao]
-    );
-    if (produtoExiste.rowCount > 0) {
-      return res.status(400).json({ erro: "Esse produto já foi cadastrado" });
-    }
 
     const categoriaExiste = await pool.query(
       "select * from categorias where id = $1",
@@ -19,6 +12,23 @@ const cadastrarProduto = async (req, res) => {
     );
     if (categoriaExiste.rowCount < 1) {
       return res.status(400).json({ erro: "Esta categoria não existe" });
+    }
+
+    const produtoExiste = await pool.query(
+      "select * from produtos where descricao = $1",
+      [descricao]
+    );
+
+
+    if (produtoExiste.rowCount > 0) {
+      const updateQuery = `
+        UPDATE produtos 
+        SET quantidade_estoque = quantidade_estoque + $1
+        WHERE descricao = $2
+        RETURNING *;
+      `;
+      const { rows: [produtoAtualizado] } = await pool.query(updateQuery, [quantidade, descricao]);
+      return res.status(201).json(produtoAtualizado);
     }
 
     const query = `
@@ -41,6 +51,7 @@ const cadastrarProduto = async (req, res) => {
     return res.status(400).json({ erro: error.message });
   }
 };
+
 
 const editarDadosProduto = async (req, res) => {
   const { id } = req.params;
@@ -84,6 +95,8 @@ WHERE id = $5;
   }
 };
 
+
+
 const listarProdutos = async (req, res) => {
   const { categoria_id } = req.query;
 
@@ -93,11 +106,7 @@ const listarProdutos = async (req, res) => {
         "select * from produtos where categoria_id = $1",
         [categoria_id]
       );
-      if (produtoExiste.rowCount < 1) {
-        return res
-          .status(400)
-          .json({ erro: "Sem produtos cadastrados nesta categoria!" });
-      }
+     
       const produtoEncontrado = produtoExiste.rows;
       return res.status(201).json(produtoEncontrado);
     }

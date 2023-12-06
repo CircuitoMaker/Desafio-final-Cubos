@@ -5,7 +5,7 @@ const cadastrarCliente = async (req, res) => {
     
     try {
         
-        const emailUnico = await pool.query('select * from clientes where email = $1', [email]);
+        const emailUnico = await pool.query('select * from clientes where email = $1', [email.toLowerCase()]);
        
         if (emailUnico.rowCount > 0) {
             return res.status(400).json({ erro: 'E-mail e CPF não podem ter sido cadastrados anteriormente.' });
