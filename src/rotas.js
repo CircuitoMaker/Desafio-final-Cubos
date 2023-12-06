@@ -10,6 +10,7 @@ const schemaClientes = require('./validacoes/schemaClientes');
 const schemaUsuarios = require('./validacoes/schemaUsuarios');
 const schemaProdutos = require('./validacoes/schemaProdutos');
 const schemaLogin = require('./validacoes/schemaLogin');
+const { cadastrarPedidos } = require('./controladores/pedidos');
 
 const rotas = express();
 
@@ -32,5 +33,7 @@ rotas.post('/cliente',validarCorpoRequisicao(schemaClientes),cliente.cadastrarCl
 rotas.put('/cliente/:id', validarCorpoRequisicao(schemaClientes),cliente.editarCliente);
 rotas.get('/cliente', cliente.listarCliente);
 rotas.get('/cliente/:id', cliente.detalharCliente);
+
+rotas.post('/pedido',cadastrarPedidos)
 
 module.exports = rotas
