@@ -71,3 +71,24 @@ create table pedidos_produtos
 
 alter table produtos
 add produto_imagem text
+
+
+drop table pedidos;
+drop table pedidos_produtos;
+
+
+
+create table pedidos
+(id serial primary key,
+ cliente_id integer not null,
+ observacao text,
+ valor_total integer
+);
+
+create table pedido_produtos
+(id serial primary key,
+ pedido_id integer not null,
+ produto_id integer not null,
+ quantidade_produto integer not null,
+ valor_produto integer
+);

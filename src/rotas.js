@@ -4,13 +4,15 @@ const listarCategorias = require('./controladores/categorias');
 const usuario = require('./controladores/usuarios');
 const produto = require('./controladores/produtos');
 const cliente = require('./controladores/clientes');
+const pedidos = require('./controladores/pedidos');
 
 const validarCorpoRequisicao = require('./intermediarios/validarCorpoRequisicao');
 const schemaClientes = require('./validacoes/schemaClientes');
 const schemaUsuarios = require('./validacoes/schemaUsuarios');
 const schemaProdutos = require('./validacoes/schemaProdutos');
 const schemaLogin = require('./validacoes/schemaLogin');
-const { cadastrarPedidos } = require('./controladores/pedidos');
+const schemaPedidos = require('./validacoes/schemaPedidos');
+
 
 const rotas = express();
 
@@ -34,6 +36,7 @@ rotas.put('/cliente/:id', validarCorpoRequisicao(schemaClientes),cliente.editarC
 rotas.get('/cliente', cliente.listarCliente);
 rotas.get('/cliente/:id', cliente.detalharCliente);
 
-rotas.post('/pedido',cadastrarPedidos)
+rotas.post('/pedido', validarCorpoRequisicao(schemaPedidos),pedidos.cadastrarPedidos);
+rotas.get('/pedido', pedidos.listarPedidos);
 
 module.exports = rotas
