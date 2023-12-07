@@ -4,6 +4,9 @@ const cadastrarProduto = async (req, res) => {
   const { descricao, quantidade_estoque, valor, categoria_id } = req.body;
   const quantidade = parseInt(quantidade_estoque);
 
+console.log(req.file);
+console.log(req.body);
+
   try {
 
     const categoriaExiste = await pool.query(
