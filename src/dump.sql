@@ -72,9 +72,9 @@ create table pedidos_produtos
 alter table produtos
 add produto_imagem text
 
-
-drop table pedidos;
 drop table pedidos_produtos;
+drop table pedidos;
+
 
 
 
