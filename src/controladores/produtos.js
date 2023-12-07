@@ -153,18 +153,21 @@ const excluirProduto = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const query = `
-    DELETE FROM produtos
-    WHERE id = $1;
-`;
+
+    const verificaPedidos = await pool.query("select * from pedido_produtos where produto_id = $1",[id]);
+
+    if (verificaPedidos.rowCount > 0) {
+      return res.status(400).json({ erro: "Produto vinculado a pedido, nao pode ser excluido!"});
+    } 
+
+    const query = `DELETE FROM produtos WHERE id = $1;`;
+
     const { rowCount } = await pool.query(query, [id]);
 
     if (rowCount > 0) {
       return res.status(200).json({ erro: "Produto excluído com sucesso!" });
     } else {
-      return res
-        .status(404)
-        .json({ erro: "Produto não encontrado para exclusão" });
+      return res.status(404).json({ erro: "Produto não encontrado para exclusão" });
     }
   } catch (error) {
     return res.status(500).json({ erro: "Erro interno do servidor" });
