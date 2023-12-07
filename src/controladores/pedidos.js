@@ -59,45 +59,82 @@ const cadastrarPedidos = async (req, res) => {
  };
   
     
+const listarPedidos = async (req, res) => {
+  const { cliente_id } = req.query;
 
+  try {
+      if (cliente_id && cliente_id > 0) {
+          const clienteExiste = await pool.query('SELECT id FROM clientes WHERE id = $1', [cliente_id]);
+          if (clienteExiste.rowCount === 0) {
+              return res.status(400).json({ erro: 'Cliente não encontrado' });
+          }
 
-const listarPedidos = async (req, res)=>{
-    const {cliente_id} = req.query;
+          const pedidosExistem = await pool.query('SELECT * FROM pedidos WHERE cliente_id = $1', [cliente_id]);
+          if (pedidosExistem.rowCount === 0) {
+              return res.status(400).json({ erro: 'Não existem pedidos para este cliente' });
+          }
 
-    //SE for passado algum parametro...
-if(cliente_id && cliente_id > 0){
-    try {
-        const clienteExiste = await pool.query('SELECT id FROM clientes WHERE id = $1', [cliente_id]);
-        if (clienteExiste.rowCount === 0) {
-          return res.status(400).json({ erro: 'Cliente não encontrado' });
-        }
+          const pedidosFormatados = pedidosExistem.rows.map(async (pedido) => {
+              const pedidoProdutos = await pool.query('SELECT * FROM pedido_produtos WHERE pedido_id = $1', [pedido.id]);
+              return {
+                  pedido: {
+                      id: pedido.id,
+                      valor_total: pedido.valor_total,
+                      observacao: pedido.observacao,
+                      cliente_id: pedido.cliente_id
+                  },
+                  pedido_produtos: pedidoProdutos.rows.map((produto) => ({
+                      id: produto.id,
+                      quantidade_produto: produto.quantidade_produto,
+                      valor_produto: produto.valor_produto,
+                      pedido_id: produto.pedido_id,
+                      produto_id: produto.produto_id
+                  }))
+              };
+          });
 
-    const pedidosExistem = await pool.query('SELECT * FROM pedidos WHERE cliente_id = $1', [cliente_id]);
-    if (pedidosExistem.rowCount === 0) {
-        return res.status(400).json({ erro: 'nao existem pedidos'});
+          Promise.all(pedidosFormatados).then((resultados) => {
+              return res.status(200).json(resultados);
+          }).catch((err) => {
+              console.error(err);
+              return res.status(500).json({ erro: 'Erro ao formatar dados' });
+          });
+      } else {
+          const pedidosCadastrados = await pool.query('SELECT * FROM pedidos');
+          if (pedidosCadastrados.rowCount === 0) {
+              return res.status(400).json({ erro: 'Não existem pedidos cadastrados' });
+          }
+
+          const pedidosFormatados = pedidosCadastrados.rows.map(async (pedido) => {
+              const pedidoProdutos = await pool.query('SELECT * FROM pedido_produtos WHERE pedido_id = $1', [pedido.id]);
+              return {
+                  pedido: {
+                      id: pedido.id,
+                      valor_total: pedido.valor_total,
+                      observacao: pedido.observacao,
+                      cliente_id: pedido.cliente_id
+                  },
+                  pedido_produtos: pedidoProdutos.rows.map((produto) => ({
+                      id: produto.id,
+                      quantidade_produto: produto.quantidade_produto,
+                      valor_produto: produto.valor_produto,
+                      pedido_id: produto.pedido_id,
+                      produto_id: produto.produto_id
+                  }))
+              };
+          });
+
+          Promise.all(pedidosFormatados).then((resultados) => {
+              return res.status(200).json(resultados);
+          }).catch((err) => {
+              console.error(err);
+              return res.status(500).json({ erro: 'Erro ao formatar dados' });
+          });
       }
-
-      return res.status(201).json(pedidosExistem.rows);
-
-        }catch{
-            return res.status(500).json({ erro: 'Erro interno do servidor' });
-        }
-}
-
-//SE nao for passado nenhum parametro... busca todas as transaçoes
-try{
-const pedidoscadastrados = await pool.query('SELECT * FROM pedidos');
-if (pedidoscadastrados.rowCount === 0) {
-    return res.status(400).json({ erro: 'nao existem pedidos cadastrados'});
+  } catch (error) {
+      console.error(error);
+      return res.status(500).json({ erro: 'Erro interno do servidor' });
   }
-  return res.status(201).json(pedidoscadastrados.rows);
-}catch{
-    return res.status(500).json({ erro: 'Erro interno do servidor' });
-}
-
-
-
-
 };
 
 
