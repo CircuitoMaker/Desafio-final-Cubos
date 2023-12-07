@@ -61,11 +61,44 @@ const cadastrarPedidos = async (req, res) => {
     
 
 
+const listarPedidos = async (req, res)=>{
+    const {cliente_id} = req.query;
 
+    //SE for passado algum parametro...
+if(cliente_id && cliente_id > 0){
+    try {
+        const clienteExiste = await pool.query('SELECT id FROM clientes WHERE id = $1', [cliente_id]);
+        if (clienteExiste.rowCount === 0) {
+          return res.status(400).json({ erro: 'Cliente não encontrado' });
+        }
 
-const listarPedidos = async (req,res)=>{
-    console.log("listar pedidos");
+    const pedidosExistem = await pool.query('SELECT * FROM pedidos WHERE cliente_id = $1', [cliente_id]);
+    if (pedidosExistem.rowCount === 0) {
+        return res.status(400).json({ erro: 'nao existem pedidos'});
+      }
+
+      return res.status(201).json(pedidosExistem.rows);
+
+        }catch{
+            return res.status(500).json({ erro: 'Erro interno do servidor' });
+        }
 }
+
+//SE nao for passado nenhum parametro... busca todas as transaçoes
+try{
+const pedidoscadastrados = await pool.query('SELECT * FROM pedidos');
+if (pedidoscadastrados.rowCount === 0) {
+    return res.status(400).json({ erro: 'nao existem pedidos cadastrados'});
+  }
+  return res.status(201).json(pedidoscadastrados.rows);
+}catch{
+    return res.status(500).json({ erro: 'Erro interno do servidor' });
+}
+
+
+
+
+};
 
 
 module.exports = {
