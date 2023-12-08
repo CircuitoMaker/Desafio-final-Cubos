@@ -65,7 +65,7 @@ const pedidoExemplo =
     {
         "pedido": {
             "id": 1,
-            "valor_total": 230010,
+            "valor_total": 12000,
             "observacao": null,
             "cliente_id": 1
         },
@@ -73,14 +73,14 @@ const pedidoExemplo =
             {
                 "id": 1,
                 "quantidade_produto": 1,
-                "valor_produto": 10,
+                "valor_produto": 5000,
                 "pedido_id": 1,
                 "produto_id": 1
             },
             {
                 "id": 2,
                 "quantidade_produto": 2,
-                "valor_produto": 230000,
+                "valor_produto": 7000,
                 "pedido_id": 1,
                 "produto_id": 2
             }
