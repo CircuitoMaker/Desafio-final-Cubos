@@ -14,7 +14,6 @@ const schemaProdutos = require('./validacoes/schemaProdutos');
 const schemaLogin = require('./validacoes/schemaLogin');
 const schemaPedidos = require('./validacoes/schemaPedidos');
 
-
 const rotas = express();
 
 rotas.get('/categoria', listarCategorias);
@@ -26,7 +25,7 @@ rotas.use(verificarLogin);
 rotas.get('/usuario', usuario.detalharPerfilUsuario);
 rotas.put('/usuario', validarCorpoRequisicao(schemaUsuarios),usuario.editarPerfilUsuario);
 
-rotas.post('/produto',validarCorpoRequisicao(schemaProdutos),multer.single('arquivo'),produto.cadastrarProduto);
+rotas.post('/produto',validarCorpoRequisicao(schemaProdutos),produto.cadastrarProduto);//,multer.single('arquivo')
 rotas.put('/produto/:id', validarCorpoRequisicao(schemaProdutos),produto.editarDadosProduto);
 rotas.get('/produto', produto.listarProdutos);
 rotas.get('/produto/:id', produto.detalharProduto);

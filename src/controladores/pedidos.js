@@ -1,9 +1,9 @@
 const pool = require('../conexao');
-const enviarEmail = require('./mail');
+const geraPaginaHTML = require('../services/HTML')
+const enviarEmail = require('../services/nodemailer');
 
 const cadastrarPedidos = async (req, res) => {
     const { cliente_id, pedido_produtos, observacao } = req.body;
-
 
     try {
         const clienteExiste = await pool.query('SELECT id FROM clientes WHERE id = $1', [cliente_id]);
@@ -55,10 +55,44 @@ const cadastrarPedidos = async (req, res) => {
 
         //Enviar email para o cliente após cadastro bem sucedido do pedido
 
-        const cliente = await pool.query('SELECT email FROM clientes WHERE id =$1', [cliente_id]);
-        const emailCliente = cliente.rows[0].email;
+      //  const cliente = await pool.query('SELECT email FROM clientes WHERE id =$1', [cliente_id]);
+       // const emailCliente = cliente.rows[0].email;
 
-        await enviarEmail(emailCliente, 'Pedido realizado', 'Seu pedido foi cadastrado com sucesso! Obrigado pela preferência!')
+        //await enviarEmail(emailCliente, 'Pedido realizado', 'Seu pedido foi cadastrado com sucesso! Obrigado pela preferência!')
+        
+        
+const pedidoExemplo = 
+    {
+        "pedido": {
+            "id": 1,
+            "valor_total": 230010,
+            "observacao": null,
+            "cliente_id": 1
+        },
+        "pedido_produtos": [
+            {
+                "id": 1,
+                "quantidade_produto": 1,
+                "valor_produto": 10,
+                "pedido_id": 1,
+                "produto_id": 1
+            },
+            {
+                "id": 2,
+                "quantidade_produto": 2,
+                "valor_produto": 230000,
+                "pedido_id": 1,
+                "produto_id": 2
+            }
+        ]
+    }
+    
+                  
+    
+        
+        const paginaHTML = geraPaginaHTML(pedidoExemplo);
+        await enviarEmail('welausen@gmail.com', 'Pedido realizado', paginaHTML)
+
 
         return res.status(201).json({ mensagem: 'Pedido cadastrado com sucesso' });
 
