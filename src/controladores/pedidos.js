@@ -1,15 +1,18 @@
 const pool = require('../conexao');
+const { emit } = require('../rotas');
 const geraPaginaHTML = require('../services/HTML')
 const enviarEmail = require('../services/nodemailer');
 
 const cadastrarPedidos = async (req, res) => {
     const { cliente_id, pedido_produtos, observacao } = req.body;
 
+//const email = "";
     try {
-        const clienteExiste = await pool.query('SELECT id FROM clientes WHERE id = $1', [cliente_id]);
+        const clienteExiste = await pool.query('SELECT id,email FROM clientes WHERE id = $1', [cliente_id]);
         if (clienteExiste.rowCount === 0) {
-            return res.status(404).json({ erro: 'Cliente não encontrado' });
+            return res.status(400).json({ erro: 'Cliente não encontrado' });
         }
+       email = clienteExiste.rows[0].email;
 
         let valor_total = 0;
 
@@ -52,47 +55,11 @@ const cadastrarPedidos = async (req, res) => {
 
             await pool.query(insertProdutosPedidoQuery, valoresProdutosPedido);
         }
-
-        //Enviar email para o cliente após cadastro bem sucedido do pedido
-
-      //  const cliente = await pool.query('SELECT email FROM clientes WHERE id =$1', [cliente_id]);
-       // const emailCliente = cliente.rows[0].email;
-
-        //await enviarEmail(emailCliente, 'Pedido realizado', 'Seu pedido foi cadastrado com sucesso! Obrigado pela preferência!')
-        
-        
-const pedidoExemplo = 
-    {
-        "pedido": {
-            "id": 1,
-            "valor_total": 12000,
-            "observacao": null,
-            "cliente_id": 1
-        },
-        "pedido_produtos": [
-            {
-                "id": 1,
-                "quantidade_produto": 1,
-                "valor_produto": 5000,
-                "pedido_id": 1,
-                "produto_id": 1
-            },
-            {
-                "id": 2,
-                "quantidade_produto": 2,
-                "valor_produto": 7000,
-                "pedido_id": 1,
-                "produto_id": 2
-            }
-        ]
-    }
-    
-                  
-    
-        
-        const paginaHTML = geraPaginaHTML(pedidoExemplo);
-        await enviarEmail('welausen@gmail.com', 'Pedido realizado', paginaHTML)
-
+       /// adicionar um tratamento de promisse na busca do cliente para "pegar" o email
+        console.log(email);
+        const pedidoEmail = req.body
+        const paginaHTML = await geraPaginaHTML(pedidoEmail);
+        await enviarEmail("welausen@gmail.com", 'Pedido realizado', paginaHTML)
 
         return res.status(201).json({ mensagem: 'Pedido cadastrado com sucesso' });
 
