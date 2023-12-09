@@ -18,6 +18,9 @@ const schemaProdutos = joi.object({
       "any.required": "O campo categoria é obrigatório",
       "number.base": "Esse campo deve ser preenchido com números",
     }),
+
+    produto_imagem: joi.string().messages(),
+
   });
   
 module.exports = schemaProdutos

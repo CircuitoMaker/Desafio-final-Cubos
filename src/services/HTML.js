@@ -33,48 +33,44 @@ async function geraPaginaHTML(pedido) {
     let valorTotalComQuantidade = 0;
 
     let html = `
-        <html>
-        <head>
-            <title>Detalhes do Pedido</title>
-            <style>
-                .container-verde {
-                    background-color: #c2f0c2;
-                    padding: 10px;
-                    margin-bottom: 10px;
-                    border-radius: 10px;
-                }
-                .container-roxo {
-                    background-color: #e5ccff;
-                    padding: 10px;
-                    margin-bottom: 10px;
-                    border-radius: 10px;
-                }
-                .valor {
-                    background-color: #f0f0f0;
-                    padding: 5px;
-                    margin-bottom: 10px;
-                    border-radius: 5px;
-                    text-align: center;
-                    font-weight: bold;
-                    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3); /* Sombreado leve */
-                }
-            </style>
-        </head>
-        <body>
+    <html>
+    <head>
+        <title>Detalhes do Pedido</title>
+        <style>
+            .container-verde {
+                background-color: #c2f0c2;
+                padding: 10px;
+                margin-bottom: 10px;
+                border-radius: 10px;
+            }
+            .container-roxo {
+                background-color: #e5ccff;
+                padding: 10px;
+                margin-bottom: 10px;
+                border-radius: 10px;
+            }
+            .valor {
+                background-color: #f0f0f0;
+                padding: 5px;
+                margin-bottom: 10px;
+                border-radius: 5px;
+                text-align: center;
+                font-weight: bold;
+                box-shadow: 0 0 5px rgba(0, 0, 0, 0.3); /* Sombreado leve */
+            }
+        </style>
+    </head>
+    <body>
+        <h2>Produtos</h2>
+        <div class="valor">
+            <h1>Detalhes do Pedido</h1>
+        </div>       
+`;
 
-            <h2>Produtos</h2>
-            <div class="valor">
-                <h1>Detalhes do Pedido</h1>
-                <p><strong>Cliente:</strong> ${nome}</p>
-                <p><strong>CPF:</strong> ${cpf}</p>
-                <p><strong>Endereço:</strong></p>
-                <p>${rua}, ${numero} - ${bairro}, ${cidade} - ${estado}, CEP: ${cep}</p>
-                <p><strong>Observação:</strong> ${observacao ? observacao : 'Nenhuma observação'}</p>
-            </div>       
-    `;
+let containerClass = 'container-roxo'; 
 
-    for (const produto of pedido_produtos) {
-        const containerClass = quantidadeTotal % 2 === 0 ? 'container-verde' : 'container-roxo';
+for (const produto of pedido.pedido_produtos) {
+    containerClass = containerClass === 'container-verde' ? 'container-roxo' : 'container-verde';
 
         let nomeProduto = '';
         let valor = 0;
@@ -95,22 +91,22 @@ async function geraPaginaHTML(pedido) {
         quantidadeTotal += quantidadeDoProduto;
 
         html += `
-            <div class="${containerClass}">
-                <p><strong>Nome do Produto:</strong> ${nomeProduto}</p>
-                <p><strong>Quantidade:</strong> ${quantidadeDoProduto}</p>
-                <p><strong>Valor do Produto:</strong> ${formatarParaReal(valorDoProduto)}</p>
-            </div>`;
-    }
+        <div class="${containerClass}">
+            <p><strong>Nome do Produto:</strong> ${nomeProduto}</p>
+            <p><strong>Quantidade:</strong> ${quantidadeDoProduto}</p>
+            <p><strong>Valor do Produto:</strong> ${formatarParaReal(valorDoProduto)}</p>
+        </div>`;
+}
 
-    html += `
-            <div class="valor">
-                <p><strong>Quantidade Total de Itens:</strong> ${quantidadeTotal}</p>
-                <p><strong>Valor Total:</strong> ${formatarParaReal(valorTotalComQuantidade)}</p>
-            </div>
-        </body>
-        </html>`;
+html += `
+        <div class="valor">
+            <p><strong>Quantidade Total de Itens:</strong> ${quantidadeTotal}</p>
+            <p><strong>Valor Total:</strong> ${formatarParaReal(valorTotalComQuantidade)}</p>
+        </div>
+    </body>
+    </html>`;
 
-    return html;
+return html;
 }
 
 function formatarParaReal(valor) {

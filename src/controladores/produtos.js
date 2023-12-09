@@ -1,11 +1,18 @@
 const pool = require("../conexao");
+const aws = require('aws-sdk');
+require("aws-sdk/lib/maintenance_mode_message").suppress = true;
+const endpoint = new aws.Endpoint(process.env.ENDPOINT_S3);
+const s3 = new aws.S3({
+endpoint,
+credentials:{
+    accessKeyId:process.env.KEY_ID,
+    secretAccessKey:process.env.APP_KEY
+}
+});
 
 const cadastrarProduto = async (req, res) => {
-  const { descricao, quantidade_estoque, valor, categoria_id } = req.body;
+  const { descricao, quantidade_estoque, valor, categoria_id, produto_imagem } = req.body;
   const quantidade = parseInt(quantidade_estoque);
-
-console.log(req.file);
-console.log(req.body);
 
   try {
 
@@ -17,11 +24,7 @@ console.log(req.body);
       return res.status(400).json({ erro: "Esta categoria não existe" });
     }
 
-    const produtoExiste = await pool.query(
-      "select * from produtos where descricao = $1",
-      [descricao]
-    );
-
+    const produtoExiste = await pool.query("select * from produtos where descricao = $1",[descricao]);
 
     if (produtoExiste.rowCount > 0) {
       const updateQuery = `
@@ -35,14 +38,15 @@ console.log(req.body);
     }
 
     const query = `
-    insert into produtos(descricao,quantidade_estoque,valor,categoria_id)
-    values($1,$2,$3,$4) returning *
+    insert into produtos(descricao,quantidade_estoque,valor,categoria_id,produto_imagem)
+    values($1,$2,$3,$4,$5) returning *
     `;
     const { rows } = await pool.query(query, [
       descricao,
       quantidade_estoque,
       valor,
       categoria_id,
+      produto_imagem,
     ]);
 
     if (rows.length > 0) {
@@ -58,7 +62,7 @@ console.log(req.body);
 
 const editarDadosProduto = async (req, res) => {
   const { id } = req.params;
-  const { descricao, quantidade_estoque, valor, categoria_id } = req.body;
+  const { descricao, quantidade_estoque, valor, categoria_id, produto_imagem} = req.body;
 
   try {
     const produtoExiste = await pool.query(
@@ -79,15 +83,16 @@ const editarDadosProduto = async (req, res) => {
 
     const query = `
 UPDATE produtos
-SET descricao = $1, quantidade_estoque = $2, valor = $3, categoria_id = $4
-WHERE id = $5; 
+SET descricao = $1, quantidade_estoque = $2, valor = $3, categoria_id = $4, produto_imagem = $5
+WHERE id = $6; 
 `;
     const { rows, rowCount } = await pool.query(query, [
       descricao,
       quantidade_estoque,
       valor,
       categoria_id,
-      id,
+      produto_imagem,
+      id
     ]);
 
     if (rowCount > 0) {
@@ -177,10 +182,44 @@ const excluirProduto = async (req, res) => {
   }
 };
 
+
+
+const imagem = async(req,res)=>{
+ const {id} = req.params
+ const {file} = req;
+
+ try {
+  const arquivo = await s3.upload({
+    Bucket:process.env.BACKBLAZE_BUCKET,
+    Key:file.originalname,
+    Body:file.buffer,
+    ContentType:file.mimetype
+   }).promise();
+
+   return res.json({
+    url:arquivo.Location,
+    path:arquivo.Key
+  });
+
+ } catch (error) {
+  return res.status(500).json({mensagem:"Erro inter do servidor"})
+ }
+ 
+
+
+  console.log(id);
+  console.log(req.file);
+  
+
+
+  return res.status(200).json({ erro: "Imagem adicionada com sucesso!" });
+}
+
 module.exports = {
   cadastrarProduto,
   editarDadosProduto,
   listarProdutos,
   detalharProduto,
   excluirProduto,
+  imagem
 };

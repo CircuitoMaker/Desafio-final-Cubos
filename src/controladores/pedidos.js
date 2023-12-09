@@ -1,12 +1,11 @@
 const pool = require('../conexao');
-const { emit } = require('../rotas');
 const geraPaginaHTML = require('../services/HTML')
 const enviarEmail = require('../services/nodemailer');
 
 const cadastrarPedidos = async (req, res) => {
     const { cliente_id, pedido_produtos, observacao } = req.body;
 
-//const email = "";
+       let email = "";
     try {
         const clienteExiste = await pool.query('SELECT id,email FROM clientes WHERE id = $1', [cliente_id]);
         if (clienteExiste.rowCount === 0) {
@@ -19,24 +18,18 @@ const cadastrarPedidos = async (req, res) => {
         for (const pedido of pedido_produtos) {
             const { produto_id, quantidade_produto } = pedido;
 
-            // Verifica se o produto existe
-            //const produtoExiste = await pool.query('SELECT id, quantidade_estoque FROM produtos WHERE id = $1', [produto_id]);
             const produtoExiste = await pool.query('SELECT * FROM produtos WHERE id = $1', [produto_id]);
             if (produtoExiste.rowCount === 0) {
                 return res.status(400).json({ erro: `Produto com ID ${produto_id} não encontrado` });
             }
-            // verifica se tem a qtdade no estoque
             const estoqueDisponivel = produtoExiste.rows[0].quantidade_estoque;
             if (quantidade_produto > estoqueDisponivel) {
                 return res.status(400).json({ erro: `Produto com ID ${produto_id} tem quantidade insuficiente em estoque` });
             }
 
-            //incrementa o valor total com o valor do prodito VEZES a quantidade de produtos no pedido
             valor_total += produtoExiste.rows[0].valor * quantidade_produto;
         }
 
-        // Se todos os produtos estiverem validados, cadastrar o pedido no banco
-        // inseri o pedido na tabela de Perdidos
         const insertPedidoQuery = 'INSERT INTO pedidos (cliente_id, observacao, valor_total) VALUES ($1, $2, $3) RETURNING id';
         const valoresPedido = [cliente_id, observacao, valor_total];
         const resultadoInsercaoPedido = await pool.query(insertPedidoQuery, valoresPedido);
@@ -45,22 +38,17 @@ const cadastrarPedidos = async (req, res) => {
         // Inserir os produtos associados ao pedido na tabela 'produtos_pedidos'
         for (const pedido of pedido_produtos) {
             const { produto_id, quantidade_produto } = pedido;
-
             const produtoValorQuery = 'SELECT valor FROM produtos WHERE id = $1';
             const produtoValorResult = await pool.query(produtoValorQuery, [produto_id]);
             const valorDoProduto = produtoValorResult.rows[0].valor;
-
             const insertProdutosPedidoQuery = 'INSERT INTO pedido_produtos (pedido_id, produto_id, quantidade_produto,valor_produto) VALUES ($1, $2, $3, $4)';
             const valoresProdutosPedido = [pedidoId, produto_id, quantidade_produto, valorDoProduto];
-
             await pool.query(insertProdutosPedidoQuery, valoresProdutosPedido);
         }
-       /// adicionar um tratamento de promisse na busca do cliente para "pegar" o email
-        console.log(email);
+
         const pedidoEmail = req.body
         const paginaHTML = await geraPaginaHTML(pedidoEmail);
-        await enviarEmail("welausen@gmail.com", 'Pedido realizado', paginaHTML)
-
+        enviarEmail(email, 'Pedido realizado', paginaHTML);
         return res.status(201).json({ mensagem: 'Pedido cadastrado com sucesso' });
 
     } catch (error) {
@@ -146,7 +134,6 @@ const listarPedidos = async (req, res) => {
         return res.status(500).json({ erro: 'Erro interno do servidor' });
     }
 };
-
 
 module.exports = {
     cadastrarPedidos,
