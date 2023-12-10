@@ -56,15 +56,20 @@ async function geraPaginaHTML(pedido) {
                 border-radius: 5px;
                 text-align: center;
                 font-weight: bold;
-                box-shadow: 0 0 5px rgba(0, 0, 0, 0.3); /* Sombreado leve */
+                box-shadow: 0 0 5px rgba(0, 0, 0, 0.3); 
             }
         </style>
     </head>
     <body>
-        <h2>Produtos</h2>
+    <h1>Detalhes do Pedido</h1>
         <div class="valor">
-            <h1>Detalhes do Pedido</h1>
-        </div>       
+            <p><strong>Cliente:</strong> ${nome}</p>
+            <p><strong>CPF:</strong> ${cpf}</p>
+            <p><strong>Endereço:</strong></p>
+            <p>${rua}, ${numero} - ${bairro}, ${cidade} - ${estado}</p> 
+            <p>CEP: ${cep}</p>
+            <p><strong>Observação:</strong> ${observacao ? observacao : 'Nenhuma observação'}</p>
+        </div>        
 `;
 
 let containerClass = 'container-roxo'; 
@@ -74,12 +79,16 @@ for (const produto of pedido.pedido_produtos) {
 
         let nomeProduto = '';
         let valor = 0;
+        let produtoImagem = ''; 
+
         try {
             const resultado = await pool.query("SELECT * FROM produtos WHERE id = $1", [produto.produto_id]);
-            if (resultado.rowCount > 0) {
+            if (resultado.rowCount > 0){
                 nomeProduto = resultado.rows[0].descricao;
                 valor =  resultado.rows[0].valor;
+                produtoImagem = resultado.rows[0].produto_imagem || '';
                  }
+
         } catch (error) {
             console.error('Erro ao buscar descrição do produto:', error);
         }
@@ -89,14 +98,23 @@ for (const produto of pedido.pedido_produtos) {
         const valorComQuantidade = valorDoProduto * quantidadeDoProduto;
         valorTotalComQuantidade += valorComQuantidade;
         quantidadeTotal += quantidadeDoProduto;
-
+        const imagemProduto = produtoImagem ? `<img src="${produtoImagem}" alt="Imagem do Produto">` : '😍';
+    
         html += `
-        <div class="${containerClass}">
-            <p><strong>Nome do Produto:</strong> ${nomeProduto}</p>
-            <p><strong>Quantidade:</strong> ${quantidadeDoProduto}</p>
-            <p><strong>Valor do Produto:</strong> ${formatarParaReal(valorDoProduto)}</p>
+        <div class="${containerClass}" style="display: flex; align-items: center;">
+            <div style="width: 50%;">
+                <p><strong>Nome do Produto:</strong> ${nomeProduto}</p>
+                <p><strong>Quantidade:</strong> ${quantidadeDoProduto}</p>
+                <p><strong>Valor do Produto:</strong> ${formatarParaReal(valorDoProduto)}</p>
+            </div>
+            <div style="width: 50%; text-align: right;">
+                ${produtoImagem ? `<img src="${produtoImagem}" alt="Imagem do Produto" style="width: 90px; height: 90px; border-radius: 5px; box-shadow: 0 0 5px rgba(0, 0, 0, 0.7);">` : '😍'}
+            </div>
         </div>`;
-}
+    
+    
+       
+    }
 
 html += `
         <div class="valor">

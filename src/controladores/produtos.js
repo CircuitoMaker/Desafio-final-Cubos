@@ -142,10 +142,7 @@ const detalharProduto = async (req, res) => {
 
   try {
     if (id) {
-      const produtoExiste = await pool.query(
-        "select * from produtos where id = $1",
-        [id]
-      );
+      const produtoExiste = await pool.query("select * from produtos where id = $1",[id]);
       if (produtoExiste.rowCount < 1) {
         return res.status(400).json({ erro: "Produto não encontrado!" });
       }
@@ -188,7 +185,7 @@ await s3.deleteObject({
     } else {
       return res.status(404).json({ erro: "Produto não encontrado para exclusão" });
     }
-    
+
   } catch (error) {
     return res.status(500).json({ erro: "Erro interno do servidor" });
   }
