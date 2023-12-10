@@ -30,7 +30,7 @@ rotas.put('/produto/:id', validarCorpoRequisicao(schemaProdutos),produto.editarD
 rotas.get('/produto', produto.listarProdutos);
 rotas.get('/produto/:id', produto.detalharProduto);
 rotas.delete('/produto/:id', produto.excluirProduto);
-rotas.post('/produto/:id/imagem',multer.single('arquivo'),produto.imagem);
+rotas.post('/produto/imagem',multer.single('arquivo'),produto.imagem);
 
 rotas.post('/cliente',validarCorpoRequisicao(schemaClientes),cliente.cadastrarCliente);
 rotas.put('/cliente/:id', validarCorpoRequisicao(schemaClientes),cliente.editarCliente);
