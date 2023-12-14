@@ -11,11 +11,12 @@ credentials:{
 });
 
 const cadastrarProduto = async (req, res) => {
-  const { descricao, quantidade_estoque, valor, categoria_id, produto_imagem } = req.body;
+  let { descricao, quantidade_estoque, valor, categoria_id, produto_imagem } = req.body;
   const quantidade = parseInt(quantidade_estoque);
+  const {file} = req;
+
 
   try {
-
     const categoriaExiste = await pool.query(
       "select * from categorias where id = $1",
       [categoria_id]
@@ -36,6 +37,23 @@ const cadastrarProduto = async (req, res) => {
       const { rows: [produtoAtualizado] } = await pool.query(updateQuery, [quantidade, descricao]);
       return res.status(201).json(produtoAtualizado);
     }
+   
+    if(file){
+    try {
+     const arquivo = await s3.upload({
+       Bucket:process.env.BACKBLAZE_BUCKET,
+       Key:file.originalname,
+       Body:file.buffer,
+       ContentType:file.mimetype
+      }).promise();
+   
+produto_imagem = await arquivo.Location;
+   
+
+    } catch (error) {
+     return res.status(500).json({mensagem:"Erro inter do servidor"})
+    } }
+
 
     const query = `
     insert into produtos(descricao,quantidade_estoque,valor,categoria_id,produto_imagem)
@@ -213,15 +231,8 @@ const imagem = async(req,res)=>{
  } catch (error) {
   return res.status(500).json({mensagem:"Erro inter do servidor"})
  }
- 
 
 
-  console.log(id);
-  console.log(req.file);
-  
-
-
-  return res.status(200).json({ erro: "Imagem adicionada com sucesso!" });
 }
 
 module.exports = {
